@@ -1,16 +1,11 @@
-import subprocess
-from log import info
+import psutil
 
 def is_chrome_running():
-    """Check if google-chrome-stable process is running"""
-    info("Checking for google-chrome-stable process")
-    try:
-        result = subprocess.run(
-            ["pgrep", "-f", "google-chrome-stable"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=False
-        )
-        return result.returncode == 0
-    except subprocess.CalledProcessError:
-        return False
+    """Check if there's any running chrome process"""
+    for proc in psutil.process_iter(attrs=['pid', 'name']):
+        try:
+            if 'chrome' in proc.info['name'].lower():
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
+    return False

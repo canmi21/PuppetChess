@@ -1,14 +1,13 @@
-import subprocess
 import time
 from browser import Browser
 from checker import Checker
-from utils import is_chrome_running
 from log import info, notice, action
+from utils import is_chrome_running
 
 def main():
-    # Check if Chrome is running
+    # Check if there's any running chrome process
     if is_chrome_running():
-        notice("Chrome is running, opening new tab to lichess.org")
+        notice("Found chrome process, opening lichess tab")
         browser = Browser()
         browser.open_lichess_tab()
     else:
@@ -20,13 +19,14 @@ def main():
     checker = Checker(browser)
     
     # Monitor for game URL
-    info("Monitoring for lichess game URL...")
+    info("Monitoring for lichess...")
     while True:
         game_url = checker.check_for_game_url()
         if game_url:
-            notice(f"Game URL detected: {game_url}")
+            notice(f"URL detected: {game_url}")
             action(f"Switching to game tab: {game_url}")
             browser.switch_to_tab(game_url)
+            time.sleep(10)
             break
         time.sleep(1)  # Check every second
 
