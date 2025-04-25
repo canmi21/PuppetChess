@@ -1,25 +1,17 @@
-import psutil
-import subprocess
-import sys
+from manager import start_game, monitor_game
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 
-def is_chrome_running():
-    # Check if there's any running chrome process
-    for proc in psutil.process_iter(attrs=['pid', 'name']):
-        try:
-            if 'chrome' in proc.info['name'].lower():
-                return True
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            continue
-    return False
+def main():
+    url = 'https://lichess.org/'
+    options = Options()
+    options.add_argument("--headless")
+    service = Service("/usr/bin/chromedriver")
+    driver = webdriver.Chrome(service=service, options=options)
 
-def open_chrome(url):
-    # Try to open Chrome in a new tab if it's already running
-    if is_chrome_running():
-        subprocess.run(['google-chrome-stable', '--new-tab', url])
-    else:
-        # If Chrome isn't running, open a new Chrome window
-        subprocess.run(['google-chrome-stable', '--new-window', url])
+    start_game(url)
+    monitor_game(driver)
 
 if __name__ == '__main__':
-    url = 'https://lichess.org/'
-    open_chrome(url)
+    main()
