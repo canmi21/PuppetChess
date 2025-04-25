@@ -1,18 +1,8 @@
-import psutil
 import time
 from browser import Browser
 from checker import Checker
 from log import info, notice, action
-
-def is_chrome_running():
-    """Check if there's any running chrome process"""
-    for proc in psutil.process_iter(attrs=['pid', 'name']):
-        try:
-            if 'chrome' in proc.info['name'].lower():
-                return True
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            continue
-    return False
+from utils import is_chrome_running
 
 def main():
     # Check if there's any running chrome process
