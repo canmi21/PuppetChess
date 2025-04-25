@@ -37,20 +37,22 @@ def main():
             info(f"URL detected: {game_url}")
             action(f"Switching to game tab: {game_url}")
             browser.switch_to_tab(game_url)
-            time.sleep(5)  # Wait for the tab to load
+            # Loop to wait for the page title "Your turn"
+            info("Waiting for the game to start...")
+            while True:
+                if "Your turn" in browser.driver.title:
+                    info("It's your turn!")
+                    break
+                time.sleep(1)  # Check every second
 
             chess_board = ChessBoard(browser.driver)
-            if checker.check_first_move():
-                info("It's your first move!")
-                # Check if move history exists (if opponent already moved)
-                if chess_board.has_moves():
-                    info("Opponent has already made a move.")
-                    first_move = False  # Opponent went first
-                else:
-                    info("No moves recorded yet, you go first!")
-                    first_move = True
+            
+            # Check if move history exists (if opponent already moved)
+            if not chess_board.has_moves():
+                info("No moves recorded yet, you go first!")
+                first_move = True
             else:
-                info("It's your opponent's turn.")
+                info("Opponent has already made a move.")
                 first_move = False
 
             # If opponent goes first, we need to read their move
@@ -59,6 +61,7 @@ def main():
                 while not chess_board.has_moves():
                     time.sleep(1)  # Wait until opponent plays
 
+                time.sleep(1)
                 opponent_move = chess_board.get_opponent_move()
                 if opponent_move:
                     info(f"Opponent's move: {opponent_move}")
