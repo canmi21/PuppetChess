@@ -46,9 +46,7 @@ def main():
                     # Capture a screenshot
                     screenshot_filename = "capture.png"  # The file will be overwritten each time
                     browser.capture_screenshot(screenshot_filename)
-
-                    # After capturing the screenshot, extract and match the scoreboard
-                    chess_board.extract_scoreboard(screenshot_filename)  # Extract and save the matched area
+                    chess_board.extract_scoreboard(screenshot_filename)
 
                     time.sleep(60000)  # debug needed
                     break
