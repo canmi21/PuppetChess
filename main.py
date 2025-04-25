@@ -31,16 +31,8 @@ def main():
             info(f"URL detected: {game_url}")
             action(f"Switching to game tab: {game_url}")
             browser.switch_to_tab(game_url)
-            # Loop to wait for "Your turn"
-            info("Waiting for the game to start...")
-            time.sleep(0.5)
-            while True:
-                if "Your turn" in browser.driver.title:
-                    info("It's your turn!")
-
-                    time.sleep(60000)  # debug needed
-                    sys.exit(0)
-                time.sleep(1)
+            # 这里开始游戏
+            sys.exit(0)
         time.sleep(1)
 
 if __name__ == "__main__":
