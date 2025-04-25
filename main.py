@@ -2,6 +2,7 @@ import sys
 import time
 from browser import Browser
 from checker import Checker
+from board import is_opponent_first, get_opponent_move
 from log import info, notice, action
 from utils import is_chrome_running
 
@@ -21,7 +22,7 @@ def main():
     # Monitor for game URL with 60-second timeout
     info("Monitoring for lichess...")
     start_time = time.time()
-    timeout = 60  # timeout for URL
+    timeout = 60
     while True:
         if time.time() - start_time > timeout:
             notice("No game URL found within 60 seconds, exiting")
@@ -31,9 +32,26 @@ def main():
             info(f"URL detected: {game_url}")
             action(f"Switching to game tab: {game_url}")
             browser.switch_to_tab(game_url)
-            # 这里开始游戏
-            sys.exit(0)
+            break
         time.sleep(1)
+
+    turn = 1
+    info("Checking who moves first...")
+    if is_opponent_first(browser):
+        info("Opponent moves first, waiting for your turn...")
+        while True:
+            title = browser.driver.title.lower()
+            if "your turn" in title:
+                break
+            time.sleep(0.5)
+
+        move = get_opponent_move(browser, turn)
+        if move:
+            info(f"Opponent played: {move}")
+        else:
+            info("Failed to detect opponent's move.")
+    else:
+        info("We are first to move.")
 
 if __name__ == "__main__":
     main()
