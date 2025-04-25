@@ -28,3 +28,14 @@ class ChessBoard:
         except Exception as e:
             logging.error(f"Error extracting opponent's move: {str(e)}")
             return None
+
+    def has_moves(self):
+        """Check if the board has any moves recorded (if the move history exists)"""
+        try:
+            analysis_board = self.driver.find_element(By.XPATH, '//*[@title="Analysis board"]')
+            parent_container = analysis_board.find_element(By.XPATH, './ancestor::rm6')
+            moves_history = parent_container.find_elements(By.TAG_NAME, 'l4x')
+            return len(moves_history) > 0
+        except Exception as e:
+            logging.error(f"Error checking if moves exist: {str(e)}")
+            return False
