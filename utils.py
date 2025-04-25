@@ -3,7 +3,6 @@ from log import info
 
 def is_chrome_running():
     """Check if google-chrome-stable process is running"""
-    info("Checking for google-chrome-stable process")
     try:
         result = subprocess.run(
             ["pgrep", "-f", "google-chrome-stable"],
