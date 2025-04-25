@@ -1,28 +1,49 @@
-import psutil
-import subprocess
 from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 
-options = Options()
-# options.add_argument("--headless")
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+class Browser:
+    def __init__(self):
+        self.driver = None
+        self.lichess_url = "https://lichess.org/"
 
-def is_chrome_running():
-    for proc in psutil.process_iter(attrs=['pid', 'name']):
-        try:
-            if 'chrome' in proc.info['name'].lower():
-                return True
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            continue
-    return False
+    def launch_browser(self):
+        """Launch Chrome and navigate to lichess.org"""
+        chrome_options = Options()
+        # Ensure Chrome runs in a way compatible with automation
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        
+        # Use webdriver-manager to handle ChromeDriver
+        service = Service(ChromeDriverManager().install())
+        self.driver = webdriver.Chrome(service=service, options=chrome_options)
+        self.driver.get(self.lichess_url)
 
-def open_chrome(url):
-    if is_chrome_running():
-        subprocess.run(['google-chrome-stable', '--new-tab', url])
-    else:
-        subprocess.run(['google-chrome-stable', '--new-window', url])
+    def open_lichess_tab(self):
+        """Open a new tab with lichess.org if Chrome is already running"""
+        if not self.driver:
+            chrome_options = Options()
+            chrome_options.add_argument("--no-sandbox")
+            chrome_options.add_argument("--disable-dev-shm-usage")
+            service = Service(ChromeDriverManager().install())
+            self.driver = webdriver.Chrome(service=service, options=chrome_options)
+        else:
+            self.driver.execute_script(f"window.open('{self.lichess_url}');")
 
-def switch_to_tab(driver, url):
-    driver.get(url)
+    def switch_to_tab(self, url):
+        """Switch to the tab with the specified URL"""
+        for window_handle in self.driver.window_handles:
+            self.driver.switch_to.window(window_handle)
+            if self.driver.current_url == url:
+                break
+
+    def get_open_tabs(self):
+        """Return a list of URLs of all open tabs"""
+        tabs = []
+        current_window = self.driver.current_window_handle
+        for window_handle in self.driver.window_handles:
+            self.driver.switch_to.window(window_handle)
+            tabs.append(self.driver.current_url)
+        self.driver.switch_to.window(current_window)
+        return tabs
