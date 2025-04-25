@@ -1,17 +1,32 @@
-from manager import start_game, monitor_game
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
+import subprocess
+import time
+from browser import Browser
+from checker import Checker
+from utils import is_chrome_running
 
 def main():
-    url = 'https://lichess.org/'
-    options = Options()
-    options.add_argument("--headless")
-    service = Service("/usr/bin/chromedriver")
-    driver = webdriver.Chrome(service=service, options=options)
+    # Check if Chrome is running
+    if is_chrome_running():
+        print("Chrome is running, opening new tab to lichess.org")
+        browser = Browser()
+        browser.open_lichess_tab()
+    else:
+        print("Chrome is not running, launching browser")
+        browser = Browser()
+        browser.launch_browser()
+    
+    # Initialize checker to monitor for game URL
+    checker = Checker(browser)
+    
+    # Monitor for game URL
+    print("Monitoring for lichess game URL...")
+    while True:
+        game_url = checker.check_for_game_url()
+        if game_url:
+            print(f"Game URL detected: {game_url}")
+            browser.switch_to_tab(game_url)
+            break
+        time.sleep(1)  # Check every second
 
-    start_game(url)
-    monitor_game(driver)
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
