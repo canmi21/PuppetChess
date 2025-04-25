@@ -4,8 +4,8 @@ from browser import Browser
 from checker import Checker
 from log import info, notice, action
 from utils import is_chrome_running
-from board import ChessBoard  # Import ChessBoard class
-from counter import Counter  # Import Counter class
+from counter import Counter
+from board import ChessBoard
 
 def main():
     # Check if there's any running chrome process
@@ -22,10 +22,13 @@ def main():
     checker = Checker(browser)
     counter = Counter()  # Initialize Counter for move counting
 
-    # Monitor for game URL with 30-second timeout
+    # Initialize ChessBoard object for visual recognition
+    chess_board = ChessBoard()
+
+    # Monitor for game URL with 60-second timeout
     info("Monitoring for lichess...")
     start_time = time.time()
-    timeout = 30  # 30 seconds timeout for game URL
+    timeout = 60  # timeout for URL
     while True:
         if time.time() - start_time > timeout:
             notice("No game URL found within 30 seconds, exiting")
@@ -35,16 +38,19 @@ def main():
             info(f"URL detected: {game_url}")
             action(f"Switching to game tab: {game_url}")
             browser.switch_to_tab(game_url)
-            # Loop to wait for the page title "Your turn"
+            # Loop to wait for "Your turn"
             info("Waiting for the game to start...")
             while True:
                 if "Your turn" in browser.driver.title:
                     info("It's your turn!")
-                    # Capture a screenshot when it's your turn
-                    info("Capturing screenshot...")
+                    # Capture a screenshot
                     screenshot_filename = "capture.png"  # The file will be overwritten each time
                     browser.capture_screenshot(screenshot_filename)
-                    info(f"Screenshot saved as {screenshot_filename}")
+
+                    # After capturing the screenshot, extract and match the scoreboard
+                    chess_board.extract_scoreboard(screenshot_filename)  # Extract and save the matched area
+
+                    time.sleep(60000)  # debug needed
                     break
                 time.sleep(1)  # Check every second
         time.sleep(1)  # Check every second
