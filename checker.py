@@ -15,8 +15,9 @@ class Checker:
 
     def check_first_move(self):
         """Check if the game has started and if it's the player's turn"""
-        tabs = self.browser.get_open_tabs()
-        for tab_title in tabs:
-            if "your turn" in tab_title.lower():
-                return True  # It is your turn to move
-        return False  # Not your turn yet
+        tabs = self.browser.driver.window_handles  # Get window handles (tabs)
+        for handle in tabs:
+            self.browser.driver.switch_to.window(handle)
+            title = self.browser.driver.title  # Get the title of the current tab
+            if "your turn" in title.lower():
+                return True

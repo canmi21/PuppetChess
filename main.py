@@ -4,6 +4,7 @@ from browser import Browser
 from checker import Checker
 from log import info, notice, action
 from utils import is_chrome_running
+from board import ChessBoard  # Import ChessBoard class
 
 def main():
     # Check if there's any running chrome process
@@ -32,13 +33,21 @@ def main():
             info(f"URL detected: {game_url}")
             action(f"Switching to game tab: {game_url}")
             browser.switch_to_tab(game_url)
-            time.sleep(2)
+            time.sleep(0.5)  # Wait for the tab to load
             # Check if it's the first move (your turn)
             if checker.check_first_move():
                 info("It's your first move!")
             else:
-                info("It's your opponent's move.")
-            time.sleep(30)  # 30-second wait for debugging
+                # Initialize ChessBoard and get opponent's move
+                chess_board = ChessBoard(browser.driver)
+                opponent_move = chess_board.get_opponent_move()
+                
+                if opponent_move:
+                    info(f"Opponent's move: {opponent_move}")
+                else:
+                    info("Could not extract opponent's move.")
+                
+            time.sleep(600)  # Wait for debugging (adjust as needed)
             break
         time.sleep(1)  # Check every second
 
