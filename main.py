@@ -32,7 +32,12 @@ def main():
             info(f"URL detected: {game_url}")
             action(f"Switching to game tab: {game_url}")
             browser.switch_to_tab(game_url)
-            time.sleep(10)
+            # Check if it's the first move (your turn)
+            if checker.check_first_move():
+                info("It's your first move!")
+            else:
+                info("It's your opponent's move.")
+            time.sleep(30)  # 30-second wait for debugging
             break
         time.sleep(1)  # Check every second
 
