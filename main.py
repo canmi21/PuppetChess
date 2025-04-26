@@ -19,7 +19,7 @@ def main():
     # Initialize checker to monitor for game URL
     checker = Checker(browser)
 
-    # Monitor for game URL with 60-second timeout
+    # Monitor for game URL with timeout
     info("Monitoring for lichess...")
     start_time = time.time()
     timeout = 60
@@ -35,23 +35,24 @@ def main():
             break
         time.sleep(1)
 
-    turn = 1
-    info("Checking who moves first...")
-    if is_opponent_first(browser):
-        info("Opponent moves first, waiting for your turn...")
-        while True:
-            title = browser.driver.title.lower()
-            if "your turn" in title:
-                break
-            time.sleep(0.5)
+    info("Waiting for game to start...")
+    while True:
+        title = browser.driver.title.lower()
+        if "your turn" in title:
+            break
+        time.sleep(0.5)
 
-        move = get_opponent_move(browser, turn)
-        if move:
-            info(f"Opponent played: {move}")
-        else:
-            info("Failed to detect opponent's move.")
+    # Initialize game state
+    turn = 1
+    is_opponent_first = True
+
+    if is_opponent_first(browser):
+        info("Opponent moves first")
+        time.sleep(6000)
     else:
-        info("We are first to move.")
+        info("You move first")
+        is_opponent_first = False
+        time.sleep(6000)
 
 if __name__ == "__main__":
     main()
